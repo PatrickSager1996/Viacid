@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizontal scrollbarer Container per Drag</title>
+<style>
+  /* Hauptcontainer */
+  .main-container {
+    display: flex;
+    overflow-x: hidden;
+    width: 620px; /* Breite so eingestellt, dass nur 6 Container sichtbar sind */
+    height: 200px;
+    border: 2px solid #333;
+    background-color: #f0f0f0;
+    cursor: grab;
+    position: relative;
+  }
+
+  /* Scrollbereich für alle kleinen Container */
+  .scroll-container {
+    display: flex;
+    transition: transform 0.2s ease;
+    gap: 30px; /* Großer Abstand zwischen den kleinen Containern */
+    padding: 10px;
+  }
+
+  /* Kleine Container innerhalb des Scrollbereichs */
+  .small-container {
+    width: 100px;
+    height: 100px;
+    background-color: #4CAF50;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    user-select: none; /* Verhindert das Markieren von Text beim Ziehen */
+  }
+</style>
+</head>
+<body>
+
+<div class="main-container" id="mainContainer">
+  <div class="scroll-container" id="scrollContainer">
+    <div class="small-container">1</div>
+    <div class="small-container">2</div>
+    <div class="small-container">3</div>
+    <div class="small-container">4</div>
+    <div class="small-container">5</div>
+    <div class="small-container">6</div>
+    <div class="small-container">7</div>
+    <div class="small-container">8</div>
+    <div class="small-container">9</div>
+    <div class="small-container">10</div>
+    <!-- Weitere kleine Container können hinzugefügt werden -->
+  </div>
+</div>
+
+<script>
+  // Variablen zum Verfolgen der Scroll-Position
+  let isDragging = false;
+  let startX;
+  let scrollLeft;
+
+  const mainContainer = document.getElementById('mainContainer');
+  const scrollContainer = document.getElementById('scrollContainer');
+
+  // Event Listener für das Drücken der Maustaste
+  mainContainer.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.pageX - mainContainer.offsetLeft;
+    scrollLeft = scrollContainer.offsetLeft;
+    mainContainer.style.cursor = 'grabbing';
+  });
+
+  // Event Listener für das Loslassen der Maustaste
+  mainContainer.addEventListener('mouseup', () => {
+    isDragging = false;
+    mainContainer.style.cursor = 'grab';
+  });
+
+  // Event Listener für das Verlassen des Containers mit der Maus
+  mainContainer.addEventListener('mouseleave', () => {
+    isDragging = false;
+    mainContainer.style.cursor = 'grab';
+  });
+
+  // Event Listener für das Bewegen der Maus
+  mainContainer.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - mainContainer.offsetLeft;
+    const walk = (x - startX) * 2; // Geschwindigkeit des Scrollens
+
+    // Berechne die maximale Verschiebung nach links (nicht weiter als 0)
+    const maxLeft = 0;
+    const maxRight = -(scrollContainer.scrollWidth - mainContainer.clientWidth);
+
+    // Berechne die neue Position und verhindere Bewegung nach links
+    let newScrollPosition = scrollLeft + walk;
+    if (newScrollPosition > maxLeft) newScrollPosition = maxLeft;
+    if (newScrollPosition < maxRight) newScrollPosition = maxRight;
+
+    scrollContainer.style.transform = `translateX(${newScrollPosition}px)`;
+  });
+</script>
+
+</body>
+</html>
