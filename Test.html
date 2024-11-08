@@ -1,43 +1,43 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Horizontal scrollbarer Container per Drag und Touch</title>
-<style>
-  /* Hauptcontainer */
-  .main-container {
-    display: flex;
-    overflow-x: hidden;
-    width: 620px; /* Breite so eingestellt, dass nur 6 Container sichtbar sind */
-    height: 200px;
-    border: 2px solid #333;
-    background-color: #f0f0f0;
-    cursor: grab;
-    position: relative;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizontal scrollbarer Container per Drag und Touch</title>
+  <style>
+    /* Hauptcontainer */
+    .main-container {
+      display: flex;
+      overflow-x: hidden;
+      width: 620px; /* Breite so eingestellt, dass nur 6 Container sichtbar sind */
+      height: 200px;
+      border: 2px solid #333;
+      background-color: #f0f0f0;
+      cursor: grab;
+      position: relative;
+    }
 
-  /* Scrollbereich für alle kleinen Container */
-  .scroll-container {
-    display: flex;
-    transition: transform 0.2s ease;
-    gap: 30px; /* Großer Abstand zwischen den kleinen Containern */
-    padding: 10px;
-  }
+    /* Scrollbereich für alle kleinen Container */
+    .scroll-container {
+      display: flex;
+      gap: 30px; /* Großer Abstand zwischen den kleinen Containern */
+      padding: 10px;
+      transition: transform 0.2s ease;
+    }
 
-  /* Kleine Container innerhalb des Scrollbereichs */
-  .small-container {
-    width: 100px;
-    height: 100px;
-    background-color: red;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    user-select: none; /* Verhindert das Markieren von Text beim Ziehen */
-  }
-</style>
+    /* Kleine Container innerhalb des Scrollbereichs */
+    .small-container {
+      width: 100px;
+      height: 100px;
+      background-color: purple;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      user-select: none; /* Verhindert das Markieren von Text beim Ziehen */
+    }
+  </style>
 </head>
 <body>
 
@@ -69,9 +69,9 @@
   function startDrag(e) {
     isDragging = true;
     startX = (e.pageX || e.touches[0].pageX) - mainContainer.offsetLeft;
-    scrollLeft = scrollContainer.offsetLeft;
+    scrollLeft = scrollContainer.getBoundingClientRect().left;
     mainContainer.style.cursor = 'grabbing';
-    e.preventDefault(); // Verhindert das Standardverhalten des Browsers bei Touch-Events
+    e.preventDefault(); // Verhindert das Standardverhalten des Browsers
   }
 
   // Funktion für das Beenden des Draggens
@@ -83,9 +83,11 @@
   // Funktion für das Bewegen während des Draggens
   function dragMove(e) {
     if (!isDragging) return;
-    e.preventDefault();
+
+    e.preventDefault(); // Verhindert das Standard-Scrolling-Verhalten während des Ziehens
     const x = (e.pageX || e.touches[0].pageX) - mainContainer.offsetLeft;
     const walk = (x - startX) * 2; // Geschwindigkeit des Scrollens
+
     const maxLeft = 0;
     const maxRight = -(scrollContainer.scrollWidth - mainContainer.clientWidth);
 
@@ -106,6 +108,7 @@
   mainContainer.addEventListener('touchstart', startDrag, { passive: false });
   mainContainer.addEventListener('touchend', endDrag);
   mainContainer.addEventListener('touchmove', dragMove, { passive: false });
+
 </script>
 
 </body>
