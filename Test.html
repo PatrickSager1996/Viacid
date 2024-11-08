@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Horizontal scrollbarer Container per Drag</title>
+<title>Horizontal scrollbarer Container per Drag und Touch</title>
 <style>
   /* Hauptcontainer */
   .main-container {
@@ -29,7 +29,7 @@
   .small-container {
     width: 100px;
     height: 100px;
-    background-color: #4CAF50;
+    background-color: red;
     color: #fff;
     display: flex;
     align-items: center;
@@ -58,52 +58,54 @@
 </div>
 
 <script>
-  // Variablen zum Verfolgen der Scroll-Position
   let isDragging = false;
   let startX;
   let scrollLeft;
-
+  
   const mainContainer = document.getElementById('mainContainer');
   const scrollContainer = document.getElementById('scrollContainer');
 
-  // Event Listener für das Drücken der Maustaste
-  mainContainer.addEventListener('mousedown', (e) => {
+  // Funktion für das Starten des Draggens
+  function startDrag(e) {
     isDragging = true;
-    startX = e.pageX - mainContainer.offsetLeft;
+    startX = (e.pageX || e.touches[0].pageX) - mainContainer.offsetLeft;
     scrollLeft = scrollContainer.offsetLeft;
     mainContainer.style.cursor = 'grabbing';
-  });
+    e.preventDefault(); // Verhindert das Standardverhalten des Browsers bei Touch-Events
+  }
 
-  // Event Listener für das Loslassen der Maustaste
-  mainContainer.addEventListener('mouseup', () => {
+  // Funktion für das Beenden des Draggens
+  function endDrag() {
     isDragging = false;
     mainContainer.style.cursor = 'grab';
-  });
+  }
 
-  // Event Listener für das Verlassen des Containers mit der Maus
-  mainContainer.addEventListener('mouseleave', () => {
-    isDragging = false;
-    mainContainer.style.cursor = 'grab';
-  });
-
-  // Event Listener für das Bewegen der Maus
-  mainContainer.addEventListener('mousemove', (e) => {
+  // Funktion für das Bewegen während des Draggens
+  function dragMove(e) {
     if (!isDragging) return;
     e.preventDefault();
-    const x = e.pageX - mainContainer.offsetLeft;
+    const x = (e.pageX || e.touches[0].pageX) - mainContainer.offsetLeft;
     const walk = (x - startX) * 2; // Geschwindigkeit des Scrollens
-
-    // Berechne die maximale Verschiebung nach links (nicht weiter als 0)
     const maxLeft = 0;
     const maxRight = -(scrollContainer.scrollWidth - mainContainer.clientWidth);
 
-    // Berechne die neue Position und verhindere Bewegung nach links
     let newScrollPosition = scrollLeft + walk;
     if (newScrollPosition > maxLeft) newScrollPosition = maxLeft;
     if (newScrollPosition < maxRight) newScrollPosition = maxRight;
 
     scrollContainer.style.transform = `translateX(${newScrollPosition}px)`;
-  });
+  }
+
+  // Mouse Events
+  mainContainer.addEventListener('mousedown', startDrag);
+  mainContainer.addEventListener('mouseup', endDrag);
+  mainContainer.addEventListener('mouseleave', endDrag);
+  mainContainer.addEventListener('mousemove', dragMove);
+
+  // Touch Events für mobile Geräte (z.B. iPad)
+  mainContainer.addEventListener('touchstart', startDrag, { passive: false });
+  mainContainer.addEventListener('touchend', endDrag);
+  mainContainer.addEventListener('touchmove', dragMove, { passive: false });
 </script>
 
 </body>
